@@ -2,13 +2,15 @@ import logo from './logo.svg';
 import './App.css';
 import React, { useState } from 'react';
 
-import { Paper, Grid, TextField, Button } from '@mui/material';
+import { Paper, Grid, TextField, Button, RadioGroup, FormControlLabel, FormControl, FormLabel, Radio } from '@mui/material';
 
 
 function App() {
    const [yourCountry, setYourCountry] = useState("ExampleYourCountry");
    const [yourDistanceToNorthPole, setYourDistanceToNorthPole] = useState("ExampleDistanceToNorthPole");
    const [yourDistanceToMoonCore, setYourDistanceToMoonCore] = useState("ExampleDistanceToMoonCore");
+
+   const [part3SelectedRadio, setPart3SelectedRadio] = useState(true); // true = gps, false = enter
 
 
    // todo
@@ -22,11 +24,32 @@ function App() {
 
    // todo
    function calculatePartB() {
-      console.log("calculatePartA called!");
+      console.log("calculatePartB called!");
 
       let yourDistanceToNorthPoleNew = "calculatedDistanceToNorthPole";
 
       setYourDistanceToNorthPole(yourDistanceToNorthPoleNew);
+   }
+
+   // todo
+   function calculatePartCGPS() {
+      console.log("calculatePartCGPS called!");
+
+   }
+
+   // todo
+   function calculatePartCEnter() {
+      console.log("calculatePartCEnter called!");
+
+
+      setYourDistanceToMoonCore("Aya cok var.");
+
+   }
+
+   function handleRadioButtonChange() {
+      setPart3SelectedRadio( !part3SelectedRadio);
+
+      setYourDistanceToMoonCore("Aya daha cok var.");
    }
 
 
@@ -84,6 +107,31 @@ function App() {
                <h3>Part C</h3>
                <h4>Click on the button to see your distance to the Moon's Core!</h4>
                <h5>You may need to enable your browser's access to GPS of your device, if you decide to use the automatic geolocation service. But you may also enter it yourself!</h5>
+
+               { (yourDistanceToMoonCore !== "ExampleDistanceToMoonCore") &&
+                  <p> Your Distance To The Moon's Core: {yourDistanceToMoonCore}</p>
+               }
+
+               <FormControl>
+                  <FormLabel id="part-c-radio-buttons-group-label">How would you like to give your coordinates?</FormLabel>
+                  <RadioGroup
+                     aria-labelledby="part-c-radio-buttons-group-label"
+                     name="part-c-radio-buttons-group"
+                     defaultValue="gps"
+                     onChange={handleRadioButtonChange}
+                  >
+                     <FormControlLabel value="gps" control={<Radio />} label="Get them via GPS." />
+                     <FormControlLabel value="enter" control={<Radio />} label="Enter the coordinates yourself." />
+                  </RadioGroup>
+               </FormControl> <br/>
+
+               { part3SelectedRadio &&
+                  <Button variant="contained" onClick={calculatePartCGPS} data-testid="part-b-button" style={{margin:"1%"}}>Calculate Distance With GPS</Button>
+               }
+               { !part3SelectedRadio &&
+                  <Button variant="contained" onClick={calculatePartCEnter} data-testid="part-b-button" style={{margin:"1%"}}>Calculate Distance</Button>
+               }
+
 
             </Paper>
          </Grid>
