@@ -49,7 +49,7 @@ function App() {
                   label="Latitude"
                   // type="text"
                   // autoComplete="current-password"
-                  data-testid="part-a-field-1"
+                  inputProps={{ "data-testid": "part-a-field-1" }}
                   style={{margin:"1%"}}
                /> <br/>
                <TextField
@@ -57,7 +57,7 @@ function App() {
                   label="Longitude"
                   // type="text"
                   // autoComplete="current-password"
-                  data-testid="part-a-field-2"
+                  inputProps={{ "data-testid": "part-a-field-2" }}
                   style={{margin:"1%"}}
                /> <br/>
 
@@ -76,7 +76,7 @@ function App() {
                   <p> Your Distance To Geographic North Pole: {yourDistanceToNorthPole}</p>
                }
 
-               <Button variant="contained" onClick={calculatePartB} data-testid="part-a-button" style={{margin:"1%"}}>Calculate Distance</Button>
+               <Button variant="contained" onClick={calculatePartB} data-testid="part-b-button" style={{margin:"1%"}}>Calculate Distance</Button>
 
             </Paper>
 
