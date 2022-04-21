@@ -22,13 +22,26 @@ function App() {
       setYourCountry(yourCountryNew);
    }
 
-   // todo
-   function calculatePartB() {
+   // calculate distance to santa
+   function calculatePartB(entered_latitude_1, entered_longitude_1, entered_latitude_2, entered_longitude_2) {
       console.log("calculatePartB called!");
 
-      let yourDistanceToNorthPoleNew = "calculatedDistanceToNorthPole";
+      const R = 6371e3;
+      const latitude1 = entered_latitude_1 * Math.PI/180;
+      const latitude2 = entered_latitude_2 * Math.PI/180;
 
-      setYourDistanceToNorthPole(yourDistanceToNorthPoleNew);
+      const dif_latitude = (entered_latitude_2 - entered_latitude_1) * Math.PI/180;
+      const dif_longitude = (entered_longitude_2 - entered_longitude_1) * Math.PI/180;
+
+      const a = Math.sin(dif_latitude/2) * Math.sin(dif_latitude/2) +
+          Math.cos(latitude1) * Math.cos(latitude2) *
+          Math.sin(dif_longitude/2) * Math.sin(dif_longitude/2);
+
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+      const distance = R * c;
+
+      setYourDistanceToNorthPole(distance.toString());
    }
 
    // todo
@@ -65,7 +78,7 @@ function App() {
                <h4>Enter your coordinates of your location to see your country.</h4>
 
                { (yourCountry !== "ExampleYourCountry") &&
-                  <p> Your Country: {yourCountry}</p>
+                  <p data-testid="part-a-paragraph">Your Country: {yourCountry}</p>
                }
 
                <TextField
@@ -97,7 +110,7 @@ function App() {
                <h5>You may need to enable your browser's access to GPS of your device.</h5>
 
                { (yourDistanceToNorthPole !== "ExampleDistanceToNorthPole") &&
-                  <p> Your Distance To Geographic North Pole: {yourDistanceToNorthPole}</p>
+                  <p data-testid="part-b-paragraph">Your Distance To Geographic North Pole: {yourDistanceToNorthPole}</p>
                }
 
                <Button variant="contained" onClick={calculatePartB} data-testid="part-b-button" style={{margin:"1%"}}>Calculate Distance</Button>
@@ -110,7 +123,7 @@ function App() {
                <h5>You may need to enable your browser's access to GPS of your device, if you decide to use the automatic geolocation service. But you may also enter it yourself!</h5>
 
                { (yourDistanceToMoonCore !== "ExampleDistanceToMoonCore") &&
-                  <p> Your Distance To The Moon's Core: {yourDistanceToMoonCore}</p>
+                  <p data-testid="part-c-paragraph"> Your Distance To The Moon's Core: {yourDistanceToMoonCore}</p>
                }
 
                <FormControl>
