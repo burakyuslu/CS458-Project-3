@@ -127,6 +127,33 @@ function App() {
                   </RadioGroup>
                </FormControl> <br/>
 
+               {!part3SelectedRadio &&
+
+                  <TextField
+                     id="part-c-field-1-id"
+                     label="Latitude"
+                     // type="text"
+                     // autoComplete="current-password"
+                     inputProps={{"data-testid": "part-c-field-1"}}
+                     style={{margin: "1%"}}
+                  />
+               }
+               {!part3SelectedRadio && <br/>  }
+
+               { !part3SelectedRadio &&
+                  <TextField
+                     id="part-c-field-2-id"
+                     label="Longitude"
+                     // type="text"
+                     // autoComplete="current-password"
+                     inputProps={{ "data-testid": "part-c-field-2" }}
+                     style={{margin:"1%"}}
+                  />
+               }
+
+               {!part3SelectedRadio && <br/>  }
+
+
                { part3SelectedRadio &&
                   <Button variant="contained" onClick={calculatePartCGPS} data-testid="part-c-button-1" style={{margin:"1%"}}>Calculate Distance</Button>
                }
