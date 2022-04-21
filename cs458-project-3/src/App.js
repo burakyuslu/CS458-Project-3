@@ -113,23 +113,24 @@ function App() {
                }
 
                <FormControl>
-                  <FormLabel id="part-c-radio-buttons-group-label">How would you like to give your coordinates?</FormLabel>
+                  <FormLabel  id="part-c-radio-buttons-group-label" data-testid="part-c-form-label" >How would you like to give your coordinates?</FormLabel>
                   <RadioGroup
                      aria-labelledby="part-c-radio-buttons-group-label"
                      name="part-c-radio-buttons-group"
                      defaultValue="gps"
                      onChange={handleRadioButtonChange}
+                     data-testid="part-c-radio-group"
                   >
-                     <FormControlLabel value="gps" control={<Radio />} label="Get them via GPS." />
-                     <FormControlLabel value="enter" control={<Radio />} label="Enter the coordinates yourself." />
+                     <FormControlLabel value="gps" control={<Radio data-testid="part-c-radio-1" />} label="Get them via GPS." data-testid="part-c-form-control-label-1" />
+                     <FormControlLabel value="enter" control={<Radio data-testid="part-c-radio-2" />} label="Enter the coordinates yourself." data-testid="part-c-form-control-label-2" />
                   </RadioGroup>
                </FormControl> <br/>
 
                { part3SelectedRadio &&
-                  <Button variant="contained" onClick={calculatePartCGPS} data-testid="part-b-button" style={{margin:"1%"}}>Calculate Distance With GPS</Button>
+                  <Button variant="contained" onClick={calculatePartCGPS} data-testid="part-c-button-1" style={{margin:"1%"}}>Calculate Distance With GPS</Button>
                }
                { !part3SelectedRadio &&
-                  <Button variant="contained" onClick={calculatePartCEnter} data-testid="part-b-button" style={{margin:"1%"}}>Calculate Distance</Button>
+                  <Button variant="contained" onClick={calculatePartCEnter} data-testid="part-c-button-2" style={{margin:"1%"}}>Calculate Distance</Button>
                }
 
 
