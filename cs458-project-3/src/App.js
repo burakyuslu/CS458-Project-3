@@ -128,7 +128,7 @@ function App() {
                </FormControl> <br/>
 
                { part3SelectedRadio &&
-                  <Button variant="contained" onClick={calculatePartCGPS} data-testid="part-c-button-1" style={{margin:"1%"}}>Calculate Distance With GPS</Button>
+                  <Button variant="contained" onClick={calculatePartCGPS} data-testid="part-c-button-1" style={{margin:"1%"}}>Calculate Distance</Button>
                }
                { !part3SelectedRadio &&
                   <Button variant="contained" onClick={calculatePartCEnter} data-testid="part-c-button-2" style={{margin:"1%"}}>Calculate Distance</Button>
