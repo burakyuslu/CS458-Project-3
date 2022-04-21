@@ -35,6 +35,8 @@ function App() {
    function calculatePartCGPS() {
       console.log("calculatePartCGPS called!");
 
+      setYourDistanceToMoonCore("Aya daha cok var.");
+
    }
 
    // todo
@@ -49,7 +51,6 @@ function App() {
    function handleRadioButtonChange() {
       setPart3SelectedRadio( !part3SelectedRadio);
 
-      setYourDistanceToMoonCore("Aya daha cok var.");
    }
 
 
