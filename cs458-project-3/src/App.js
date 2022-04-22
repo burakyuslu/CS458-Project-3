@@ -88,11 +88,9 @@ function App() {
             });
         }
         else {
-            console.log("geallocation is not supported");
+            console.log("geolocation is not supported");
         }
-
         console.log("calculatePartB called!");
-
     }
 
     // todo
@@ -107,7 +105,6 @@ function App() {
                 current_lng = position.coords.longitude;
                 var currentdate = new Date();
                 console.log(currentdate);
-                var SunCalc = require('suncalc');
                 var distance = SunCalc.getMoonPosition(currentdate, current_lat, current_lng).distance;
                 setYourDistanceToMoonCore(distance);
             });
@@ -122,7 +119,6 @@ function App() {
     function calculatePartCEnter() {
         var currentdate = new Date();
         console.log(currentdate);
-        var SunCalc = require('suncalc');
         var distance = SunCalc.getMoonPosition(currentdate, enteredLat, enteredLng).distance;
 
         setYourDistanceToMoonCore(distance);
