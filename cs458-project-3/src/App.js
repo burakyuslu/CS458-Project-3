@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import axios from "axios";
 
 import { Paper, Grid, TextField, Button, RadioGroup, FormControlLabel, FormControl, FormLabel, Radio } from '@mui/material';
+import SunCalc from "suncalc";
 
 
 function App() {
@@ -11,8 +12,9 @@ function App() {
     const[longitude, setLongitude] = useState("");
     const [yourCountry, setYourCountry] = useState("ExampleYourCountry");
     const [yourDistanceToNorthPole, setYourDistanceToNorthPole] = useState("ExampleDistanceToNorthPole");
+    const[enteredLat, setEnteredLat] = useState("");
+    const[enteredLng, setEnteredLng] = useState("");
     const [yourDistanceToMoonCore, setYourDistanceToMoonCore] = useState("ExampleDistanceToMoonCore");
-
     const [part3SelectedRadio, setPart3SelectedRadio] = useState(true); // true = gps, false = enter
 
     function setLat(latitude) {
@@ -21,6 +23,14 @@ function App() {
 
     function setLng(longitude) {
         setLongitude(longitude.target.value);
+    }
+
+    function setEnteredLatitude(lat) {
+        setEnteredLat(lat.target.value);
+    }
+
+    function setEnteredLongitude(lng) {
+        setEnteredLng(lng.target.value);
     }
 
     // todo
@@ -85,21 +95,37 @@ function App() {
 
     }
 
-
     // todo
     function calculatePartCGPS() {
         console.log("calculatePartCGPS called!");
+        var current_lat = 0;
+        var current_lng = 0;
 
-        setYourDistanceToMoonCore("Aya daha cok var.");
+        if(navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position){
+                current_lat = position.coords.latitude;
+                current_lng = position.coords.longitude;
+                var currentdate = new Date();
+                console.log(currentdate);
+                var SunCalc = require('suncalc');
+                var distance = SunCalc.getMoonPosition(currentdate, current_lat, current_lng).distance;
+                setYourDistanceToMoonCore(distance);
+            });
+        }
+        else {
+            console.log("geallocation is not supported");
+        }
 
     }
 
     // todo
     function calculatePartCEnter() {
-        console.log("calculatePartCEnter called!");
+        var currentdate = new Date();
+        console.log(currentdate);
+        var SunCalc = require('suncalc');
+        var distance = SunCalc.getMoonPosition(currentdate, enteredLat, enteredLng).distance;
 
-
-        setYourDistanceToMoonCore("Aya cok var.");
+        setYourDistanceToMoonCore(distance);
 
     }
 
@@ -189,7 +215,8 @@ function App() {
                             <TextField
                                 id="part-c-field-1-id"
                                 label="Latitude"
-                                // type="text"
+                                type="text"
+                                onChange={setEnteredLatitude}
                                 // autoComplete="current-password"
                                 inputProps={{"data-testid": "part-c-field-1"}}
                                 style={{margin: "1%"}}
@@ -201,7 +228,8 @@ function App() {
                             <TextField
                                 id="part-c-field-2-id"
                                 label="Longitude"
-                                // type="text"
+                                type="text"
+                                onChange={setEnteredLongitude}
                                 // autoComplete="current-password"
                                 inputProps={{ "data-testid": "part-c-field-2" }}
                                 style={{margin:"1%"}}
