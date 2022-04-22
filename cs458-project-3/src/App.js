@@ -46,30 +46,45 @@ function App() {
                 console.log(error);
             })
         console.log("calculatePartA called!");
-
     }
 
     // calculate distance to santa
-    function calculatePartB(entered_latitude_1, entered_longitude_1, entered_latitude_2, entered_longitude_2) {
+    function calculatePartB() {
+        var current_lat = 0;
+        var current_lng = 0;
+
+        if(navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position){
+                current_lat = position.coords.latitude;
+                current_lng = position.coords.longitude;
+
+                const R = 6371;
+                const latitude1 = current_lat * Math.PI/180;
+                const latitude2 = 89.999999 * Math.PI/180;
+
+                const dif_latitude = ( 89.999999  - current_lat) * Math.PI/180;
+                const dif_longitude = (0 - current_lng) * Math.PI/180;
+
+                const a = Math.sin(dif_latitude/2) * Math.sin(dif_latitude/2) +
+                    Math.cos(latitude1) * Math.cos(latitude2) *
+                    Math.sin(dif_longitude/2) * Math.sin(dif_longitude/2);
+
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+                const distance = R * c;
+
+                setYourDistanceToNorthPole(distance.toString());
+
+            });
+        }
+        else {
+            console.log("geallocation is not supported");
+        }
+
         console.log("calculatePartB called!");
 
-        const R = 6371e3;
-        const latitude1 = entered_latitude_1 * Math.PI/180;
-        const latitude2 = entered_latitude_2 * Math.PI/180;
-
-        const dif_latitude = (entered_latitude_2 - entered_latitude_1) * Math.PI/180;
-        const dif_longitude = (entered_longitude_2 - entered_longitude_1) * Math.PI/180;
-
-        const a = Math.sin(dif_latitude/2) * Math.sin(dif_latitude/2) +
-            Math.cos(latitude1) * Math.cos(latitude2) *
-            Math.sin(dif_longitude/2) * Math.sin(dif_longitude/2);
-
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        const distance = R * c;
-
-        setYourDistanceToNorthPole(distance.toString());
     }
+
 
     // todo
     function calculatePartCGPS() {
