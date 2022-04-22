@@ -11,7 +11,7 @@ function App() {
     const[latitude, setLatitude] = useState("");
     const[longitude, setLongitude] = useState("");
     const [yourCountry, setYourCountry] = useState("ExampleYourCountry");
-    const [yourDistanceToNorthPole, setYourDistanceToNorthPole] = useState("ExampleDistanceToNorthPole");
+    const [yourDistanceToNorthPole, setYourDistanceToNorthPole] = useState("");
     const[enteredLat, setEnteredLat] = useState("");
     const[enteredLng, setEnteredLng] = useState("");
     const [yourDistanceToMoonCore, setYourDistanceToMoonCore] = useState("ExampleDistanceToMoonCore");
@@ -58,34 +58,42 @@ function App() {
         console.log("calculatePartA called!");
     }
 
+    const requestPosition = () => {
+        return new Promise(function(resolve, reject) {
+            navigator.geolocation.getCurrentPosition(
+                pos => { resolve(pos); },
+                err => { reject (err); },
+                );
+        });
+    }
     // calculate distance to santa
-    function calculatePartB() {
+    async function calculatePartB() {
         var current_lat = 0;
         var current_lng = 0;
+        var distance = 0.0;
 
         if(navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function (position){
-                current_lat = position.coords.latitude;
-                current_lng = position.coords.longitude;
+            let position = await requestPosition();
+            current_lat = position.coords.latitude;
+            current_lng = position.coords.longitude;
 
-                const R = 6371;
-                const latitude1 = current_lat * Math.PI/180;
-                const latitude2 = 89.999999 * Math.PI/180;
+            const R = 6371;
+            const latitude1 = current_lat * Math.PI/180;
+            const latitude2 = 89.999999 * Math.PI/180;
 
-                const dif_latitude = ( 89.999999  - current_lat) * Math.PI/180;
-                const dif_longitude = (0 - current_lng) * Math.PI/180;
+            const dif_latitude = ( 89.999999  - current_lat) * Math.PI/180;
+            const dif_longitude = (0 - current_lng) * Math.PI/180;
 
-                const a = Math.sin(dif_latitude/2) * Math.sin(dif_latitude/2) +
-                    Math.cos(latitude1) * Math.cos(latitude2) *
-                    Math.sin(dif_longitude/2) * Math.sin(dif_longitude/2);
+            const a = Math.sin(dif_latitude/2) * Math.sin(dif_latitude/2) +
+                Math.cos(latitude1) * Math.cos(latitude2) *
+                Math.sin(dif_longitude/2) * Math.sin(dif_longitude/2);
 
-                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-                const distance = R * c;
+            distance = R * c;
 
-                setYourDistanceToNorthPole(distance.toString());
-
-            });
+            console.log("distance: " + distance.toString());
+            setYourDistanceToNorthPole(distance.toString());
         }
         else {
             console.log("geolocation is not supported");
@@ -100,19 +108,20 @@ function App() {
         var current_lng = 0;
 
         if(navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function (position){
+            navigator.geolocation.getCurrentPosition((position) => {
                 current_lat = position.coords.latitude;
                 current_lng = position.coords.longitude;
                 var currentdate = new Date();
                 console.log(currentdate);
                 var distance = SunCalc.getMoonPosition(currentdate, current_lat, current_lng).distance;
                 setYourDistanceToMoonCore(distance);
+            }, (error) => {
+                alert(error.message);
             });
         }
         else {
-            console.log("geallocation is not supported");
+            console.log("geolocation is not supported");
         }
-
     }
 
     // todo
@@ -174,11 +183,9 @@ function App() {
                         <h3>Part B</h3>
                         <h4>Click on the button to see your distance to the Geographic North Pole!</h4>
                         <h5>You may need to enable your browser's access to GPS of your device.</h5>
-
-                        { (yourDistanceToNorthPole !== "ExampleDistanceToNorthPole") &&
+                        {(yourDistanceToNorthPole !== "") &&
                             <p data-testid="part-b-paragraph">Your Distance To Geographic North Pole: {yourDistanceToNorthPole}</p>
                         }
-
                         <Button variant="contained" onClick={calculatePartB} data-testid="part-b-button" style={{margin:"1%"}}>Calculate Distance</Button>
 
                     </Paper>

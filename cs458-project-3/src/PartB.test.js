@@ -3,18 +3,21 @@ import App from './App';
 import userEvent from "@testing-library/user-event";
 
 
-//todo add the correct result to line 18
-describe("Checking to see if the calculation of the country is correct (for Country3)", () => {
-    test('Testing for the latitude and longitude of City3', async () => {
-        render(<App/>);
+describe("Checking geolocation", () => {
 
-        const calculateButton = screen.getByTestId("part-b-button");
+    test('to confirm mock data', async () => {
+        navigator.geolocation.getCurrentPosition((position) => {
+            expect(position.coords.latitude).toEqual(51.1);
+            expect(position.coords.longitude).toEqual(45.3);
+        });
+    });
+
+
+    test('should render the result', async () => {
+        const {findByTestId, getByTestId} = render(<App/>);
+        const calculateButton = getByTestId("part-b-button");
         userEvent.click(calculateButton);
 
-
-        const paragraph = await screen.findByTestId("part-b-paragraph");
-
-        //todo add Entered Country as country later
-        expect(paragraph.textContent).toEqual('Your Distance To Geographic North Pole: ')
+        expect(await findByTestId("part-b-paragraph")).toBeDefined();
     });
 });
