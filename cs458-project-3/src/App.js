@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './App.css';
 import React, { useState } from 'react';
 import axios from "axios";
@@ -6,6 +5,27 @@ import axios from "axios";
 import { Paper, Grid, TextField, Button, RadioGroup, FormControlLabel, FormControl, FormLabel, Radio } from '@mui/material';
 import SunCalc from "suncalc";
 
+export function calculateDistToNP(position) {
+    let current_lat = position.coords.latitude;
+    let current_lng = position.coords.longitude;
+
+    const R = 6371;
+    const latitude1 = current_lat * Math.PI/180;
+    const latitude2 = 89.999999 * Math.PI/180;
+
+    const dif_latitude = ( 89.999999  - current_lat) * Math.PI/180;
+    const dif_longitude = (0 - current_lng) * Math.PI/180;
+
+    const a = Math.sin(dif_latitude/2) * Math.sin(dif_latitude/2) +
+        Math.cos(latitude1) * Math.cos(latitude2) *
+        Math.sin(dif_longitude/2) * Math.sin(dif_longitude/2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    const distance = R * c;
+
+    return distance;
+}
 
 function App() {
     const[latitude, setLatitude] = useState("");
@@ -58,49 +78,55 @@ function App() {
         console.log("calculatePartA called!");
     }
 
-    const requestPosition = () => {
-        return new Promise(function(resolve, reject) {
-            navigator.geolocation.getCurrentPosition(
-                pos => { resolve(pos); },
-                err => { reject (err); },
-                );
-        });
+    async function calculatePartB() {
+        await navigator.geolocation.getCurrentPosition(
+            pos => {
+                const distance = calculateDistToNP(pos);
+                setYourDistanceToNorthPole(distance.toString());
+                },
+            err => { console.log(err); },
+        );
     }
+
+    /*
     // calculate distance to santa
     async function calculatePartB() {
         var current_lat = 0;
         var current_lng = 0;
-        var distance = 0.0;
 
         if(navigator.geolocation) {
-            let position = await requestPosition();
-            current_lat = position.coords.latitude;
-            current_lng = position.coords.longitude;
+            console.log("1 ");
+            await navigator.geolocation.getCurrentPosition(async function (position){
+                current_lat = position.coords.latitude;
+                current_lng = position.coords.longitude;
 
-            const R = 6371;
-            const latitude1 = current_lat * Math.PI/180;
-            const latitude2 = 89.999999 * Math.PI/180;
+                const R = 6371;
+                const latitude1 = current_lat * Math.PI/180;
+                const latitude2 = 89.999999 * Math.PI/180;
 
-            const dif_latitude = ( 89.999999  - current_lat) * Math.PI/180;
-            const dif_longitude = (0 - current_lng) * Math.PI/180;
+                const dif_latitude = ( 89.999999  - current_lat) * Math.PI/180;
+                const dif_longitude = (0 - current_lng) * Math.PI/180;
 
-            const a = Math.sin(dif_latitude/2) * Math.sin(dif_latitude/2) +
-                Math.cos(latitude1) * Math.cos(latitude2) *
-                Math.sin(dif_longitude/2) * Math.sin(dif_longitude/2);
+                const a = Math.sin(dif_latitude/2) * Math.sin(dif_latitude/2) +
+                    Math.cos(latitude1) * Math.cos(latitude2) *
+                    Math.sin(dif_longitude/2) * Math.sin(dif_longitude/2);
 
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-            distance = R * c;
-
-            console.log("distance: " + distance.toString());
-            setYourDistanceToNorthPole(distance.toString());
+                const distance = R * c;
+                console.log("Distance: " + distance);
+                setYourDistanceToNorthPole(distance.toString());
+            });
+            console.log("2 ");
         }
         else {
             console.log("geolocation is not supported");
         }
-        console.log("calculatePartB called!");
+        console.log("calculatePartB called! Distance: " + yourDistanceToNorthPole);
     }
 
+
+     */
     // todo
     function calculatePartCGPS() {
         console.log("calculatePartCGPS called!");
@@ -184,7 +210,7 @@ function App() {
                         <h4>Click on the button to see your distance to the Geographic North Pole!</h4>
                         <h5>You may need to enable your browser's access to GPS of your device.</h5>
                         {(yourDistanceToNorthPole !== "") &&
-                            <p data-testid="part-b-paragraph">Your Distance To Geographic North Pole: {yourDistanceToNorthPole}</p>
+                            <p data-testid="part-b-paragraph">Your Distance To Geographic North Pole: {yourDistanceToNorthPole} miles</p>
                         }
                         <Button variant="contained" onClick={calculatePartB} data-testid="part-b-button" style={{margin:"1%"}}>Calculate Distance</Button>
 

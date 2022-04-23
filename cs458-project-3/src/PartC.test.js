@@ -1,4 +1,4 @@
-import {fireEvent, getByTestId, render, screen} from '@testing-library/react';
+import { render, screen} from '@testing-library/react';
 import App from './App';
 import userEvent from "@testing-library/user-event";
 
@@ -17,10 +17,7 @@ describe("Checking to see if the calculation for distance to the Moon is correct
 
         expect(paragraph.textContent).toEqual('Your Distance To The Moon\'s Core: ')
     });
-});
 
-
-describe("Checking to see if the calculation for distance to the Moon is correct", () => {
     test('Testing for the distance by entering the values yourself', () => {
         render(<App/>);
 
