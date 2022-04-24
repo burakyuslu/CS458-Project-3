@@ -30,12 +30,15 @@ export function calculateDistToNP(position) {
 function App() {
     const[latitude, setLatitude] = useState("");
     const[longitude, setLongitude] = useState("");
-    const [yourCountry, setYourCountry] = useState("ExampleYourCountry");
-    const [yourDistanceToNorthPole, setYourDistanceToNorthPole] = useState("");
+    const [yourCountry, setYourCountry] = useState(" - ");
+    const [yourDistanceToNorthPole, setYourDistanceToNorthPole] = useState(" - ");
     const[enteredLat, setEnteredLat] = useState("");
     const[enteredLng, setEnteredLng] = useState("");
-    const [yourDistanceToMoonCore, setYourDistanceToMoonCore] = useState("ExampleDistanceToMoonCore");
+    const [yourDistanceToMoonCore, setYourDistanceToMoonCore] = useState(" - ");
     const [part3SelectedRadio, setPart3SelectedRadio] = useState(true); // true = gps, false = enter
+    const[errorMessageA, setErrorMessageA] = useState("");
+    const[errorMessageB, setErrorMessageB] = useState("");
+    const[errorMessageC, setErrorMessageC] = useState("");
 
     function setLat(latitude) {
         setLatitude(latitude.target.value);
@@ -53,12 +56,44 @@ function App() {
         setEnteredLng(lng.target.value);
     }
 
-    // todo
+    function handleRadioButtonChange() {
+        setPart3SelectedRadio( !part3SelectedRadio);
+
+    }
+
+    function checkLatLong(lat, long) {
+        // check for empty
+        if (lat.length <= 0 || long.length <= 0)
+            return 1;
+
+        // check for numeric
+        if (isNaN(lat) || isNaN(long) )
+            return 2;
+
+        // check for invalid coord
+        let latF = parseFloat(lat);
+        let longF = parseFloat(long);
+        if(latF < -90 || latF > 90 || longF < -180 || longF > 180)
+            return 3;
+        return 0;
+    }
+
     function calculatePartA() {
         console.log(latitude);
         console.log(longitude);
         var lat = latitude.toString();
         var lng = longitude.toString();
+
+        let result = checkLatLong(lat, lng);
+        if( result === 1 )
+            return setErrorMessageA("Fill both input.");
+        else if (result === 2)
+            return setErrorMessageA("Input is not a number.");
+        else if (result === 3)
+            return setErrorMessageA("Coordinate does not exist.");
+        else
+            setErrorMessageA("");
+
         var lat_lng = lat + ", " + lng;
         axios.get("https://maps.googleapis.com/maps/api/geocode/json", {
             params: {
@@ -78,56 +113,28 @@ function App() {
         console.log("calculatePartA called!");
     }
 
-    async function calculatePartB() {
-        await navigator.geolocation.getCurrentPosition(
-            pos => {
-                const distance = calculateDistToNP(pos);
-                setYourDistanceToNorthPole(distance.toString());
-                },
-            err => { console.log(err); },
-        );
-    }
-
-    /*
     // calculate distance to santa
     async function calculatePartB() {
-        var current_lat = 0;
-        var current_lng = 0;
-
         if(navigator.geolocation) {
-            console.log("1 ");
             await navigator.geolocation.getCurrentPosition(async function (position){
-                current_lat = position.coords.latitude;
-                current_lng = position.coords.longitude;
-
-                const R = 6371;
-                const latitude1 = current_lat * Math.PI/180;
-                const latitude2 = 89.999999 * Math.PI/180;
-
-                const dif_latitude = ( 89.999999  - current_lat) * Math.PI/180;
-                const dif_longitude = (0 - current_lng) * Math.PI/180;
-
-                const a = Math.sin(dif_latitude/2) * Math.sin(dif_latitude/2) +
-                    Math.cos(latitude1) * Math.cos(latitude2) *
-                    Math.sin(dif_longitude/2) * Math.sin(dif_longitude/2);
-
-                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-                const distance = R * c;
-                console.log("Distance: " + distance);
+                const distance = calculateDistToNP(position);
                 setYourDistanceToNorthPole(distance.toString());
+                console.log("calculatePartB called! " );
+                setErrorMessageB("");
+            }, (error) => {
+                console.log("Geolocation error: " + error.message);
+                if( error.message === "User denied Geolocation")
+                    setErrorMessageB("Enable your browser's access to GPS of your device.");
+                else
+                    setErrorMessageB("Geolocation error: " + error.message);
             });
-            console.log("2 ");
         }
         else {
             console.log("geolocation is not supported");
+            setErrorMessageB("Geolocation is not supported.");
         }
-        console.log("calculatePartB called! Distance: " + yourDistanceToNorthPole);
     }
 
-
-     */
-    // todo
     function calculatePartCGPS() {
         console.log("calculatePartCGPS called!");
         var current_lat = 0;
@@ -150,21 +157,13 @@ function App() {
         }
     }
 
-    // todo
     function calculatePartCEnter() {
         var currentdate = new Date();
         console.log(currentdate);
         var distance = SunCalc.getMoonPosition(currentdate, enteredLat, enteredLng).distance;
 
         setYourDistanceToMoonCore(distance);
-
     }
-
-    function handleRadioButtonChange() {
-        setPart3SelectedRadio( !part3SelectedRadio);
-
-    }
-
 
     return (
         <div className="App">
@@ -175,17 +174,13 @@ function App() {
                     <Paper elevation={3} style={{margin:"3%"}} data-testid="part-a-paper">
                         <h3>Part A</h3>
                         <h4>Enter your coordinates of your location to see your country.</h4>
-
-                        { (yourCountry !== "ExampleYourCountry") &&
-                            <p data-testid="part-a-paragraph">Your Country: {yourCountry}</p>
-                        }
-
+                        <p data-testid="part-a-paragraph">Your Country: {yourCountry}</p>
+                        <p data-testid="part-a-error">{errorMessageA}</p>
                         <TextField
                             id="part-a-field-1-id"
                             label="Latitude"
                             type="text"
                             onChange={setLat}
-                            // autoComplete="current-password"
                             inputProps={{ "data-testid": "part-a-field-1" }}
                             style={{margin:"1%"}}
                         /> <br/>
@@ -194,14 +189,11 @@ function App() {
                             label="Longitude"
                             type="text"
                             onChange={setLng}
-                            // autoComplete="current-password"
                             inputProps={{ "data-testid": "part-a-field-2" }}
                             style={{margin:"1%"}}
                         /> <br/>
 
                         <Button variant="contained" onClick={calculatePartA} data-testid="part-a-button" style={{margin:"1%"}}>See Your Country</Button>
-
-
 
                     </Paper>
 
@@ -209,9 +201,8 @@ function App() {
                         <h3>Part B</h3>
                         <h4>Click on the button to see your distance to the Geographic North Pole!</h4>
                         <h5>You may need to enable your browser's access to GPS of your device.</h5>
-                        {(yourDistanceToNorthPole !== "") &&
-                            <p data-testid="part-b-paragraph">Your Distance To Geographic North Pole: {yourDistanceToNorthPole} miles</p>
-                        }
+                        <p data-testid="part-b-paragraph">Your Distance To Geographic North Pole: {yourDistanceToNorthPole} miles</p>
+                        <p data-testid="part-b-error">{errorMessageB}</p>
                         <Button variant="contained" onClick={calculatePartB} data-testid="part-b-button" style={{margin:"1%"}}>Calculate Distance</Button>
 
                     </Paper>
@@ -221,10 +212,8 @@ function App() {
                         <h4>Click on the button to see your distance to the Moon's Core!</h4>
                         <h5>You may need to enable your browser's access to GPS of your device, if you decide to use the automatic geolocation service. But you may also enter it yourself!</h5>
 
-                        { (yourDistanceToMoonCore !== "ExampleDistanceToMoonCore") &&
-                            <p data-testid="part-c-paragraph"> Your Distance To The Moon's Core: {yourDistanceToMoonCore}</p>
-                        }
-
+                        <p data-testid="part-c-paragraph"> Your Distance To The Moon's Core: {yourDistanceToMoonCore} miles</p>
+                        <p data-testid="part-c-error">{errorMessageC}</p>
                         <FormControl>
                             <FormLabel  id="part-c-radio-buttons-group-label" data-testid="part-c-form-label" >How would you like to give your coordinates?</FormLabel>
                             <RadioGroup
@@ -239,43 +228,29 @@ function App() {
                             </RadioGroup>
                         </FormControl> <br/>
 
-                        {!part3SelectedRadio &&
-
-                            <TextField
-                                id="part-c-field-1-id"
-                                label="Latitude"
-                                type="text"
-                                onChange={setEnteredLatitude}
-                                // autoComplete="current-password"
-                                inputProps={{"data-testid": "part-c-field-1"}}
-                                style={{margin: "1%"}}
-                            />
-                        }
-                        {!part3SelectedRadio && <br/>  }
-
-                        { !part3SelectedRadio &&
-                            <TextField
-                                id="part-c-field-2-id"
-                                label="Longitude"
-                                type="text"
-                                onChange={setEnteredLongitude}
-                                // autoComplete="current-password"
-                                inputProps={{ "data-testid": "part-c-field-2" }}
-                                style={{margin:"1%"}}
-                            />
-                        }
-
-                        {!part3SelectedRadio && <br/>  }
-
-
-                        { part3SelectedRadio &&
-                            <Button variant="contained" onClick={calculatePartCGPS} data-testid="part-c-button-1" style={{margin:"1%"}}>Calculate Distance</Button>
-                        }
-                        { !part3SelectedRadio &&
-                            <Button variant="contained" onClick={calculatePartCEnter} data-testid="part-c-button-2" style={{margin:"1%"}}>Calculate Distance</Button>
-                        }
-
-
+                        {!part3SelectedRadio && (
+                            <div>
+                                <TextField
+                                    id="part-c-field-1"
+                                    label="Latitude"
+                                    type="text"
+                                    onChange={setEnteredLatitude}
+                                    inputProps={{"data-testid": "part-c-field-1"}}
+                                    style={{margin: "1%"}}
+                                />
+                                <br/>
+                                <TextField
+                                    id="part-c-field-2"
+                                    label="Longitude"
+                                    type="text"
+                                    onChange={setEnteredLongitude}
+                                    inputProps={{"data-testid": "part-c-field-2"}}
+                                    style={{margin: "1%"}}
+                                />
+                            </div>
+                        )}
+                        <Button variant="contained" onClick={part3SelectedRadio ? calculatePartCGPS : calculatePartCEnter}
+                                data-testid="part-c-button" style={{marginBottom:"1%", marginTop:"1%"}}>Calculate Distance</Button>
                     </Paper>
                 </Grid>
                 <Grid item xs={1}/>
