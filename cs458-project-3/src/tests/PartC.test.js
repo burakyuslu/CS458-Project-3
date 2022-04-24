@@ -1,6 +1,7 @@
 import { render, screen} from '@testing-library/react';
 import App from '../App';
 import userEvent from "@testing-library/user-event";
+import SunCalc from "suncalc";
 
 describe("Existing fields for part C: ", () => {
     test('radio button for two choices', () => {
@@ -28,9 +29,14 @@ function clickButton() {
     userEvent.click(calculateButton);
 }
 // add select b radio
-describe("Checking for the input to part C for manual coord input (like part A): ", () => {
+describe("Checking for manual input to part C (like part A): ", () => {
+
     test(' do not accept empty input (both)', () => {
-        const {getByTestId} = render(<App/>);
+        const {getByLabelText, getByTestId} = render(<App/>);
+        const radio = getByLabelText("Enter the coordinates yourself.");
+        expect(radio.checked).toEqual(false);
+        userEvent.click(radio);
+        expect(radio.checked).toEqual(true);
 
         const latitude = getByTestId("part-c-field-1");
         const longitude = getByTestId("part-c-field-2");
@@ -46,7 +52,11 @@ describe("Checking for the input to part C for manual coord input (like part A):
     });
 
     test(' do not accept empty input (one)', () => {
-        const {getByTestId} = render(<App/>);
+        const {getByLabelText, getByTestId} = render(<App/>);
+        const radio = getByLabelText("Enter the coordinates yourself.");
+        expect(radio.checked).toEqual(false);
+        userEvent.click(radio);
+        expect(radio.checked).toEqual(true);
 
         const latitude = getByTestId("part-c-field-1");
         const longitude = getByTestId("part-c-field-2");
@@ -62,7 +72,11 @@ describe("Checking for the input to part C for manual coord input (like part A):
     });
 
     test(' do not accept inputs including letter or symbols (both) ', () => {
-        const {getByTestId} = render(<App/>);
+        const {getByLabelText, getByTestId} = render(<App/>);
+        const radio = getByLabelText("Enter the coordinates yourself.");
+        expect(radio.checked).toEqual(false);
+        userEvent.click(radio);
+        expect(radio.checked).toEqual(true);
 
         const latitude = getByTestId("part-c-field-1");
         const longitude = getByTestId("part-c-field-2");
@@ -78,7 +92,11 @@ describe("Checking for the input to part C for manual coord input (like part A):
     });
 
     test(' do not accept inputs including letter or symbols (one) ', () => {
-        const {getByTestId} = render(<App/>);
+        const {getByLabelText, getByTestId} = render(<App/>);
+        const radio = getByLabelText("Enter the coordinates yourself.");
+        expect(radio.checked).toEqual(false);
+        userEvent.click(radio);
+        expect(radio.checked).toEqual(true);
 
         const latitude = getByTestId("part-c-field-1");
         const longitude = getByTestId("part-c-field-2");
@@ -94,7 +112,11 @@ describe("Checking for the input to part C for manual coord input (like part A):
     });
 
     test(' do not accept wrong coordinates (both)', () => {
-        const {getByTestId} = render(<App/>);
+        const {getByLabelText, getByTestId} = render(<App/>);
+        const radio = getByLabelText("Enter the coordinates yourself.");
+        expect(radio.checked).toEqual(false);
+        userEvent.click(radio);
+        expect(radio.checked).toEqual(true);
 
         const latitude = getByTestId("part-c-field-1");
         const longitude = getByTestId("part-c-field-2");
@@ -110,7 +132,11 @@ describe("Checking for the input to part C for manual coord input (like part A):
     });
 
     test(' do not accept wrong coordinates (one)', () => {
-        const {getByTestId} = render(<App/>);
+        const {getByLabelText, getByTestId} = render(<App/>);
+        const radio = getByLabelText("Enter the coordinates yourself.");
+        expect(radio.checked).toEqual(false);
+        userEvent.click(radio);
+        expect(radio.checked).toEqual(true);
 
         const latitude = getByTestId("part-c-field-1");
         const longitude = getByTestId("part-c-field-2");
@@ -126,46 +152,15 @@ describe("Checking for the input to part C for manual coord input (like part A):
     });
 });
 
-describe("Checking for preconditions for GPS (like part B): ", () => {
+describe("Checking sunCalc api: ", () => {
+    test('to confirm mock data for geolocation', async () => {
+        //location (39.907588, 32.765829) is Bilkent Uni
+        const lat = 39.907588;
+        const long = 32.765829;
+        const defaultDate = new Date("2022-04-24T00:00:00.000+03:00");
 
-});
-
-describe("Checking to see if the calculation for distance to the Moon is correct", () => {
-    test('Testing for the distance by not entering the values yourself', () => {
-        render(<App/>);
-
-        const radioButtonGPS = screen.getByTestId("part-c-radio-1");
-        userEvent.click(radioButtonGPS);
-
-
-        const calculateButton = screen.getByTestId("part-c-button");
-        userEvent.click(calculateButton);
-
-        const paragraph = screen.getByTestId("part-c-paragraph");
-
-        expect(paragraph.textContent).toEqual('Your Distance To The Moon\'s Core: ')
-    });
-
-    test('Testing for the distance by entering the values yourself', () => {
-        render(<App/>);
-
-        const radioButtonGPS = screen.getByTestId("part-c-radio-2");
-        userEvent.click(radioButtonGPS);
-
-
-        const calculateButton = screen.getByTestId("part-c-button");
-        userEvent.click(calculateButton);
-
-        //todo add latitude
-        const latitude = screen.getByTestId("part-c-field-1");
-        userEvent.type(latitude, "");
-
-        //todo add longitude
-        const longitude = screen.getByTestId("part-c-field-2");
-        userEvent.type(longitude, "");
-
-        const paragraph = screen.getByTestId("part-c-paragraph");
-
-        expect(paragraph.textContent).toEqual('Your Distance To The Moon\'s Core: ')
+        const distance = SunCalc.getMoonPosition(defaultDate, lat, long).distance;
+        expect(Math.round(distance )).toEqual(367554);
+        // value taken from https://www.timeanddate.com/moon/turkey/ankara
     });
 });

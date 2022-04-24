@@ -58,7 +58,6 @@ function App() {
 
     function handleRadioButtonChange() {
         setPart3SelectedRadio( !part3SelectedRadio);
-
     }
 
     function checkLatLong(lat, long) {
@@ -100,29 +99,33 @@ function App() {
                 latlng: lat_lng,
                 key:"AIzaSyAS_iGjCeE-h_vsJMYgB4Vme8KCfh0id4U"
             }
+        }).then(function (response)
+        {
+            console.log(response);
+            const result = response.data.results[response.data.results.length - 1];
+            if(result.types[0] === 'plus_code') {
+                return setErrorMessageA("This coordinates are not in a country.");
+            }
+            let formattedAddress = result.formatted_address;
+            console.log(formattedAddress)
+            setYourCountry(formattedAddress);
+            setErrorMessageA("");
         })
-            .then(function (response){
-                console.log(response);
-                var formattedAdress = response.data.results[response.data.results.length - 1].formatted_address
-                console.log(formattedAdress)
-                setYourCountry(formattedAdress);
-            })
-            .catch(function (error){
-                console.log(error);
-            })
-        console.log("calculatePartA called!");
+        .catch(function (error){
+            alert("Google maps error: " + error.message);
+            setErrorMessageA("Google maps error: " + error.message);
+        })
     }
 
     // calculate distance to santa
     async function calculatePartB() {
         if(navigator.geolocation) {
-            await navigator.geolocation.getCurrentPosition(async function (position){
+            await navigator.geolocation.getCurrentPosition(function (position){
                 const distance = calculateDistToNP(position);
                 setYourDistanceToNorthPole(distance.toString());
-                console.log("calculatePartB called! " );
                 setErrorMessageB("");
             }, (error) => {
-                console.log("Geolocation error: " + error.message);
+                alert("Geolocation error: " + error.message);
                 if( error.message === "User denied Geolocation")
                     setErrorMessageB("Enable your browser's access to GPS of your device.");
                 else
@@ -136,28 +139,41 @@ function App() {
     }
 
     function calculatePartCGPS() {
-        console.log("calculatePartCGPS called!");
-        var current_lat = 0;
-        var current_lng = 0;
-
         if(navigator.geolocation) {
             navigator.geolocation.getCurrentPosition((position) => {
-                current_lat = position.coords.latitude;
-                current_lng = position.coords.longitude;
-                var currentdate = new Date();
+                let current_lat = position.coords.latitude;
+                let current_lng = position.coords.longitude;
+                let currentdate = new Date();
                 console.log(currentdate);
-                var distance = SunCalc.getMoonPosition(currentdate, current_lat, current_lng).distance;
+
+                let distance = SunCalc.getMoonPosition(currentdate, current_lat, current_lng).distance;
                 setYourDistanceToMoonCore(distance);
+                setErrorMessageC("");
             }, (error) => {
-                alert(error.message);
+                alert("Geolocation error: " + error.message);
+                if( error.message === "User denied Geolocation")
+                    setErrorMessageB("Enable your browser's access to GPS of your device.");
+                else
+                    setErrorMessageB("Geolocation error: " + error.message);
             });
         }
         else {
             console.log("geolocation is not supported");
+            setErrorMessageC("Geolocation is not supported.");
         }
     }
 
     function calculatePartCEnter() {
+        let result = checkLatLong(enteredLat, enteredLng);
+        if( result === 1 )
+            return setErrorMessageC("Fill both input.");
+        else if (result === 2)
+            return setErrorMessageC("Input is not a number.");
+        else if (result === 3)
+            return setErrorMessageC("Coordinate does not exist.");
+        else
+            setErrorMessageC("");
+
         var currentdate = new Date();
         console.log(currentdate);
         var distance = SunCalc.getMoonPosition(currentdate, enteredLat, enteredLng).distance;
@@ -201,7 +217,7 @@ function App() {
                         <h3>Part B</h3>
                         <h4>Click on the button to see your distance to the Geographic North Pole!</h4>
                         <h5>You may need to enable your browser's access to GPS of your device.</h5>
-                        <p data-testid="part-b-paragraph">Your Distance To Geographic North Pole: {yourDistanceToNorthPole} miles</p>
+                        <p data-testid="part-b-paragraph">Your Distance To Geographic North Pole: {yourDistanceToNorthPole} km</p>
                         <p data-testid="part-b-error">{errorMessageB}</p>
                         <Button variant="contained" onClick={calculatePartB} data-testid="part-b-button" style={{margin:"1%"}}>Calculate Distance</Button>
 
@@ -212,10 +228,11 @@ function App() {
                         <h4>Click on the button to see your distance to the Moon's Core!</h4>
                         <h5>You may need to enable your browser's access to GPS of your device, if you decide to use the automatic geolocation service. But you may also enter it yourself!</h5>
 
-                        <p data-testid="part-c-paragraph"> Your Distance To The Moon's Core: {yourDistanceToMoonCore} miles</p>
+                        <p data-testid="part-c-paragraph"> Your Distance To The Moon's Core: {yourDistanceToMoonCore} km</p>
                         <p data-testid="part-c-error">{errorMessageC}</p>
                         <FormControl>
-                            <FormLabel  id="part-c-radio-buttons-group-label" data-testid="part-c-form-label" >How would you like to give your coordinates?</FormLabel>
+                            <FormLabel  id="part-c-radio-buttons-group-label" data-testid="part-c-form-label"
+                            >How would you like to give your coordinates?</FormLabel>
                             <RadioGroup
                                 aria-labelledby="part-c-radio-buttons-group-label"
                                 name="part-c-radio-buttons-group"
@@ -223,28 +240,30 @@ function App() {
                                 onChange={handleRadioButtonChange}
                                 data-testid="part-c-radio-group"
                             >
-                                <FormControlLabel value="gps" control={<Radio data-testid="part-c-radio-1" />} label="Get them via GPS." data-testid="part-c-form-control-label-1" />
-                                <FormControlLabel value="enter" control={<Radio data-testid="part-c-radio-2" />} label="Enter the coordinates yourself." data-testid="part-c-form-control-label-2" />
+                                <FormControlLabel value="gps" control={<Radio data-testid="part-c-radio-1" />}
+                                                  label="Get them via GPS." data-testid="part-c-form-control-label-1" />
+                                <FormControlLabel value="enter" control={<Radio data-testid="part-c-radio-2" />}
+                                                  label="Enter the coordinates yourself." data-testid="part-c-form-control-label-2" />
                             </RadioGroup>
                         </FormControl> <br/>
 
                         {!part3SelectedRadio && (
                             <div>
                                 <TextField
-                                    id="part-c-field-1"
+                                    id="part-c-field-1-id"
                                     label="Latitude"
                                     type="text"
                                     onChange={setEnteredLatitude}
-                                    inputProps={{"data-testid": "part-c-field-1"}}
+                                    inputProps={{ "data-testid": "part-c-field-1" }}
                                     style={{margin: "1%"}}
                                 />
                                 <br/>
                                 <TextField
-                                    id="part-c-field-2"
+                                    id="part-c-field-2-id"
                                     label="Longitude"
                                     type="text"
                                     onChange={setEnteredLongitude}
-                                    inputProps={{"data-testid": "part-c-field-2"}}
+                                    inputProps={{ "data-testid": "part-c-field-2" }}
                                     style={{margin: "1%"}}
                                 />
                             </div>

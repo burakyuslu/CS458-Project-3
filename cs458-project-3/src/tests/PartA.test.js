@@ -152,11 +152,23 @@ describe("Part A Google Maps api check: ", () => {
 
     clickButton();
 
-
     const paragraph = await screen.findByTestId("part-a-paragraph");
 
-    expect(paragraph.textContent).toEqual('Your Country: Russia')
+    expect(paragraph.textContent).toEqual('Your Country: Russia');
   });
 
-  test('coordinates does not belong to a country');
+  test('coordinates does not belong to a country', async () => {
+    render(<App/>);
+    // (0, 89) is at the Antarctic
+    const latitude = screen.getByTestId("part-a-field-1");
+    userEvent.type(latitude, "0");
+
+    const longitude = screen.getByTestId("part-a-field-2");
+    userEvent.type(longitude, "89");
+
+    clickButton();
+
+    const paragraph = await screen.findByTestId("part-a-paragraph");
+    expect(paragraph.textContent).toContain('-');
+  });
 });
