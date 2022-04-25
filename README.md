@@ -3,10 +3,10 @@
 Project 3 for the CS 458 Software Verification & Validation at Bilkent University, Spring Semester 2021-2022.
 
 Team Members:
-Can Kırşallıoba - 21801768
-Burak Yiğit Uslu - 21801745
-Elif Kurtay - 21803373
-Pelin Çeliksöz - 21600850
+*Can Kırşallıoba - 21801768
+*Burak Yiğit Uslu - 21801745
+*Elif Kurtay - 21803373
+*Pelin Çeliksöz - 21600850
 
 The project is implemented in JavaScript using React.
 
